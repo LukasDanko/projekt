@@ -1,41 +1,45 @@
-<!doctype html>
+
+ <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Java Učitel (DeepSeek) — demo</title>
-  <style>
-    body { font-family: Inter, system-ui, Arial; background:#f3f4f6; margin:0; padding:20px; display:flex; justify-content:center; }
-    .container { width: 900px; max-width: 95%; background:white; border-radius:12px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
-    h1 { margin:0 0 12px 0; font-size:20px; text-align:center; }
-    #chat { height: 520px; overflow:auto; border:1px solid #e5e7eb; border-radius:8px; padding:12px; background:#fafafa; }
-    .message { margin-bottom:12px; }
-    .user { color:#0f172a; }
-    .bot { color:#064e3b; }
-    .meta { font-size:12px; color:#6b7280; }
-    .controls { margin-top:12px; display:flex; gap:8px; }
-    input[type="text"] { flex:1; padding:10px; border-radius:8px; border:1px solid #d1d5db; }
-    button { padding:10px 14px; border-radius:8px; border: none; background:#059669; color:white; cursor:pointer; }
-    pre { background:#111827; color:#f8fafc; padding:12px; border-radius:6px; overflow:auto; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
-    .small { font-size:13px; color:#374151; }
-    .note { font-size:13px; color:#374151; margin-top:8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Učitel Javy — Chatbot demo</title>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Vlastní CSS -->
+<link rel="stylesheet" href="/style.css">
 </head>
-<body>
-  <div class="container">
-    <h1>💬 Učitel Javy — (DeepSeek R1: free) — demo</h1>
+<body class="bg-light d-flex justify-content-center align-items-center" style="height:100vh;">
 
-    <div id="chat" aria-live="polite"></div>
-
-    <div class="controls">
-      <input id="input" type="text" placeholder="Napiš dotaz o Javě (např. 'Co je konstruktor?')"/>
-      <button id="send">Odeslat</button>
-      <button id="clear">Vyčistit</button>
-    </div>
-
-    <p class="note">Tip: Pro produkci použij server-side proxy, aby nebyl API klíč v klientu.</p>
+<div class="card w-100" style="max-width:800px; height:90vh;">
+  <div class="card-header text-center">
+    <h4>💬 Učitel Javy — demo</h4>
   </div>
+
+  <div id="chat" class="card-body overflow-auto d-flex flex-column gap-2 bg-light"></div>
+
+  <div class="card-footer">
+    <div class="input-group">
+      <textarea id="input" class="form-control" rows="2" placeholder="Napiš dotaz o Javě..."></textarea>
+      <button id="send" class="btn btn-success">Odeslat</button>
+      <button id="clear" class="btn btn-secondary">Vyčistit</button>
+    </div>
+  </div>
+</div>
+
+<script src="/chat.js"></script>
+</body>
+</html>
+
+
+ 
+
+<!-- Bootstrap JS -->
+
+
 
   <!-- -------------------------
        VLOŽENÝ SYSTÉMOVÝ PROMPT
@@ -320,7 +324,7 @@ Týden 4: Souhrn + práce s jednoduchou datovou strukturou (CRUD) a zpracování
 Ke každé lekci přidej 1–2 cvičení + malý quiz (5 otázek).
 </script>
 <!-- ------------- CLIENT JS ------------- --> <script>  // === NASTAVENÍ ===
-  const API_KEY = "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"; // <- nahraď svým klíčem pro lokální test
+  const API_KEY = "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"; // <- nahraď svým klíčem pro lokální test
   const MODEL_NAME = "minimax/minimax-m2:free";
 
   // načteme systémový prompt (raw text)
@@ -377,15 +381,26 @@ Ke každé lekci přidej 1–2 cvičení + malý quiz (5 otázek).
   }
 
 // append message to chat
-function appendToChat(role, text) {
-  const el = document.createElement('div');
-  el.className = 'message ' + (role === 'user' ? 'user' : 'bot');
-  const meta = role === 'user' ? '<div class="meta">Ty</div>' : '<div class="meta">Učitel</div>';
-  el.innerHTML = meta + renderMessage(text);
+function appendToChat(role, name, text) {
+  if (!text) text = ""; // jen prázdný string, žádný fallback text
+
   const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+
+  el.className = 'message ' + (role === 'user' ? 'user' : 'bot');
+  el.innerHTML = `
+    <div class="name">${escapeHtml(name)}</div>
+    <div class="text">${renderMessage(text)}</div>
+  `;
+
   chat.appendChild(el);
   chat.scrollTop = chat.scrollHeight;
+  return el;
 }
+
+
+
+
 
 // send to OpenRouter
 async function sendToOpenRouter(messages) {
@@ -467,7 +482,7 @@ document.getElementById('send').addEventListener('click', async () => {
     const messages = buildMessages(text);
 
     // přidáme dočasnou zprávu a uložíme element
-    appendToChat('bot', '<span class="small meta">...posílám dotaz modelu...</span>');
+    appendToChat('bot', '...posílám dotaz modelu...');
     const statusMsg = document.querySelector('#chat .message.bot:last-child');
 
     const reply = await sendToOpenRouter(messages);

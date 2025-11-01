@@ -1,0 +1,74 @@
+/* Chatové bubliny */
+.message {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  word-wrap: break-word;
+}
+
+/* Jméno nad textem */
+.message .name {
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0;
+  padding: 6px 12px;  /* větší padding pro jméno */
+  border-radius: 12px 12px 0 0;
+}
+
+/* Text zprávy */
+.message .text {
+  padding: 12px 16px; /* větší padding */
+  border-radius: 0 0 12px 12px;
+}
+
+/* User bublina (vpravo) */
+.message.user {
+  align-self: flex-end;
+}
+
+.message.user .name {
+  background-color: #065f46; /* tmavě zelená */
+  color: #d1fae5;           /* světlý text */
+}
+
+.message.user .text {
+  background-color: #d1fae5; /* světlá zelená */
+  color: #0f172a;
+}
+
+/* Bot bublina (vlevo) */
+.message.bot {
+  align-self: flex-start;
+}
+
+.message.bot .name {
+  background-color: #0369a1; /* tmavě modrá */
+  color: #e0f2fe;            /* světlý text */
+}
+
+.message.bot .text {
+  background-color: #e0f2fe; /* světlá modrá */
+  color: #064e3b;
+}
+
+/* Status zpráva uprostřed */
+.message.status {
+  align-self: center;
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Chat window padding */
+#chat {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
