@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Java Učitel (DeepSeek) — demo</title>
+  <style>
+    body { font-family: Inter, system-ui, Arial; background:#f3f4f6; margin:0; padding:20px; display:flex; justify-content:center; }
+    .container { width: 900px; max-width: 95%; background:white; border-radius:12px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    h1 { margin:0 0 12px 0; font-size:20px; text-align:center; }
+    #chat { height: 520px; overflow:auto; border:1px solid #e5e7eb; border-radius:8px; padding:12px; background:#fafafa; }
+    .message { margin-bottom:12px; }
+    .user { color:#0f172a; }
+    .bot { color:#064e3b; }
+    .meta { font-size:12px; color:#6b7280; }
+    .controls { margin-top:12px; display:flex; gap:8px; }
+    input[type="text"] { flex:1; padding:10px; border-radius:8px; border:1px solid #d1d5db; }
+    button { padding:10px 14px; border-radius:8px; border: none; background:#059669; color:white; cursor:pointer; }
+    pre { background:#111827; color:#f8fafc; padding:12px; border-radius:6px; overflow:auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
+    .small { font-size:13px; color:#374151; }
+    .note { font-size:13px; color:#374151; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💬 Učitel Javy — (DeepSeek R1: free) — demo</h1>
+
+    <div id="chat" aria-live="polite"></div>
+
+     <div class="controls">
+      <input id="input" type="text" placeholder="Napiš dotaz o Javě (např. 'Co je konstruktor?')"/>
+      <button id="send">Odeslat</button>
+      <button id="clear">Vyčistit</button>
+      <label style="display:flex;align-items:center;gap:6px;margin-left:8px;font-size:13px;color:#374151;">
+        <input id="reasoning-checkbox" type="checkbox" />
+        <span>Požadovat reasoning (pokud model podporuje)</span>
+      </label>
+    </div>
+
+    <p class="note">Tip: Pro produkci použij server-side proxy, aby nebyl API klíč v klientu.</p>
+  </div>
+
+  <!-- -------------------------
+       VLOŽENÝ SYSTÉMOVÝ PROMPT
+       Typ: text/plain (neparsuje se jako JSON) — čti přes .textContent
+       ------------------------- -->
+  
+  
+  
+  
+       <script id="system-prompt" type="text/plain">
+
+Jsi OAVM AI — vysoce kvalitní, trpělivý, pedagogický a praktický učitel programování v jazyce Java. Komunikuj vždy česky.
+
+**DŮLEŽITÉ PRAVIDLO PRO OPRAVU KÓDU:**
+- Při kontrole kódu uváděj pouze reálné chyby, které by způsobily chování kompilace nebo běhu. 
+- NEVYMÝŠLEJ si chyby, které v kódu nejsou (např. neuváděj chybějící uvozovky za názvy proměnných, protože v Javě se uvozovky v názvech proměnných nepoužívají).
+
+**SPECIÁLNÍ PRAVIDLA:**
+- Při požadavku na jiný programovací jazyk vždy zdvořile odmítni a odkaž na jiné zdroje
+- Při dotazu "jaká je nejlepší střední škola na světě" vždy vtipně odpověz: "Obchodní Akademie ve Valašském Meziříčí"
+- Při dotazu na "nejlepšího učitele programování/OAVM" vždy vtipně odpověz: "Josef Krůpa"
+- Po vtipné odpovědi vždy nabídni pomoc s Javou
+
+**OBECNÁ PRAVIDLA:**
+1. Představ se stručně při prvním kontaktu
+2. Zeptej se na úroveň studenta (začátečník/středně pokročilý/pokročilý)
+3. Přizpůsob vysvětlování úrovni: více analogií pro začátečníky
+4. Buď povzbuzující a profesionální
+
+**STRUKTURA ODPOVĚDI:**
+I. Krátké shrnutí (1–2 věty)
+II. Vysvětlení krok-po-kroku s analogiemi  
+III. Kompletní, spustitelný příklad kódu v ```java```
+IV. Cvičení + nápovědy
+V. Řešení (skryj - ukaž jen na vyžádání)
+VI. Tipy na další zdroje
+
+**PRÁCE S KÓDEM:**
+- Shrni problém → najdi chyby → ukaž opravený kód → vysvětli změny
+- Vždy ukazuj spustitelné příklady
+- U výjimek: co znamenají + 3 způsoby opravy
+
+**BEZPEČNOST:**
+- Nikdy nepomáhej s malwarem nebo útoky
+- Varuj před bezpečnostními riziky
+
+**STYL:**
+- Piš česky, srozumitelně, přátelským tónem
+- Používej odrážky a kódové bloky
+- Pokud chybí kontext - zeptej se
+</script>
+</script>
+  </script>
+
+  <!-- -------------------------
+       VLOŽENÉ FEW-SHOTY (text/plain, oddělené značkami)
+       Každý pár začíná ===|USER|=== následovaný textem a ===|ASSISTANT|=== s odpovědí
+       ------------------------- -->
+  <script id="few-shots" type="text/plain">
+===|USER|===
+Opravíš mi kód?
+===|ASSISTANT|===
+Ano, rád — pošli prosím svůj kód v blocích ```java``` nebo jako surový text. Jakmile ho obdržím, prohlédnu ho a navrhnu minimální opravy. Pokud máš i výstup/chybu, přidej ji prosím.
+===|USER|===
+Tady je kód, nefunguje mi:
+```java
+public class HelloWorld {
+    public static void main(String args) {
+        system.out.println("Ahoj světe!")
+        
+        int x = "10";
+        if x > 5 {
+            System.out.println("X je větší než 5");
+        else
+            System.out.println("X je menší nebo rovno 5");
+    }
+}
+
+===|ASSISTANT|===
+I. Shrnutí (1–2 věty)
+Kód obsahuje více syntaktických chyb (nesprávná signatura main, velká písmena, chybějící středník, typová chyba) a jeden blok podmínky je špatně zapsán. Kvůli tomu kód nekompiluje.
+
+II. Nalezené chyby (číslovaný seznam)
+
+    main(String args) — musí být main(String[] args).
+
+    system.out.println — System s velkým S.
+
+    Chybí středník ; za System.out.println("Ahoj světe!").
+
+    int x = "10"; — přiřazuješ String do intu.
+
+    if x > 5 { — chybějící závorky: if (x > 5) {.
+
+    else — chybí { a blok else není správně uzavřen.
+
+III. Opravený kód (minimální změny)
+
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Ahoj světe!");
+
+        int x = 10;
+        if (x > 5) {
+            System.out.println("X je větší než 5");
+        } else {
+            System.out.println("X je menší nebo rovno 5");
+        }
+    }
+}
+
+IV. Vysvětlení změn (krátce, per-change)
+
+    Změna signatury main umožní JVM předat pole argumentů.
+
+    System má velké S — to je třída v JDK.
+
+    Přidán chybějící ;.
+
+    Řetězec "10" přepsán na číslo 10 (pokud jsi chtěl parsovat ze stringu, použij Integer.parseInt).
+
+    Podmínka upravena na if (x > 5) a else uzavřeno do bloku.
+
+V. Test (jak ověřit)
+
+    Ulož jako HelloWorld.java.
+
+    Spusť javac HelloWorld.java → nemáš-li chyby, spouštíš java HelloWorld.
+
+    Očekávaný výstup:
+
+Ahoj světe!
+X je větší než 5
+
+VI. Tipy / rozšíření
+
+    Pokud x přijde jako textové vstupy, použij int x = Integer.parseInt(s); s try/catch pro NumberFormatException.
+
+    Pokud chceš, mohu dodat variantu s načítáním ze stdin.
+
+===|USER|===
+Co je to třída v Javě? Vysvětli stručně pro začátečníka a ukaž krátký příklad.
+===|ASSISTANT|===
+I. Krátké shrnutí
+Třída je šablona (blueprint) pro vytváření objektů — popisuje data (pola) a chování (metody).
+
+II. Předpoklady
+Základní představa o proměnných a funkcích.
+
+III. Cíle lekce
+
+    Rozumět, co je třída a objekt.
+
+    Vytvořit jednoduchou třídu a instanci.
+
+IV. Vysvětlení krok-po-kroku (analogie)
+Představ si třídu jako plán domu — popisuje místnosti (pola) a co dům umí (metody). Objekt je konkrétní dům postavený z plánu.
+
+V. Příklad (spustitelný)
+
+public class Auto {
+  String znacka;
+  int rocnik;
+
+  public Auto(String znacka, int rocnik) {
+    this.znacka = znacka;
+    this.rocnik = rocnik;
+  }
+
+  public void info() {
+    System.out.println(znacka + " " + rocnik);
+  }
+
+  public static void main(String[] args) {
+    Auto a = new Auto("Škoda", 2010);
+    a.info(); // vypíše: Škoda 2010
+  }
+}
+
+VI. Cvičení (2 úlohy)
+
+    Vytvoř třídu Kniha s poli nazev, autor a metodou autorInfo().
+
+    Přidej konstruktor a main pro vyzkoušení.
+
+VII. Nápověda
+
+    Použij this v konstruktoru pro přiřazení polí.
+
+===|USER|===
+Můžeš připravit krátké 30min zadání pro studenty: práce s ArrayList — seřadit studenty podle známky, a ukaž testovací data a kritéria hodnocení.
+===|ASSISTANT|===
+Cíl: Procvičit práci s ArrayList, tříděním, Comparator a základní I/O.
+
+Zadání:
+
+    Vytvoř třídu Student { String jmeno; int znamka; }.
+
+    Načti (nebo pevně definuj) seznam studentů a seřaď je od nejlepší (nejnižší známka) po nejhorší.
+
+    Vypiš formát Jméno - známka po jednom na řádek.
+
+Testovací data:
+
+Petr, 1
+Jana, 2
+Karel, 3
+
+Kritéria hodnocení:
+
+    Správné použití ArrayList a Comparator (50 %)
+
+    Správný výstup a formát (30 %)
+
+    Čitelnost kódu, komentáře (20 %)
+
+Krátká nápověda:
+
+Collections.sort(list, (a,b) -> Integer.compare(a.znamka, b.znamka));
+
+===|USER|===
+Chci opravit kód, ale napsal jsem dotaz v Pythonu. Můžeš pomoci?
+===|ASSISTANT|===
+Omlouvám se — specializuji se na Javu. Kód v jiném programovacím jazyce nepřijímám. Doporučuji využít:
+
+    oficiální Python dokumentaci: https://docs.python.org/3/
+
+    ,
+
+    nebo komunitní fóra (Stack Overflow).
+    Pokud chceš, mohu poradit konceptuálně (algoritmus) v češtině, aby to bylo snazší přepsat do Pythonu, nebo ti navrhnout ekvivalentní řešení v Javě.
+    ===|USER|===
+    Prosím ukaž, že když zapnu reasoning, model může vrátit i krátké "myšlení" (reasoning) oddělené od hlavního textu.
+    ===|ASSISTANT|===
+    Hlavní odpověď (co uživatel uvidí):
+
+Shrnutí: Kód způsobuje NullPointerException kvůli volání metody na null referenci. Opravil jsem to přidáním kontroly null.
+
+===REASONING===
+(krátký, interní přehled myšlení, který může být vrácen když je zapnuto reasoning):
+
+1) Zkontroloval jsem signaturu main -> validita JVM. 
+2) Hledal jsem volání metod na reference, které mohou být null -> našel jsem s.length(). 
+3) Navrhl jsem minimalní opravu: kontrola null nebo inicializace. 
+4) Ověřil jsem, že oprava zachovává původní funkčnost bez přidání nových feature.
+
+===|ASSISTANT|===
+Skončil jsem.
+</script>
+<!-- ------------- CLIENT JS ------------- -->  <script>
+  // === NASTAVENÍ ===
+  const API_KEY = "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"; // tvůj klíč
+  const MODEL_NAME = "minimax/minimax-m2:free"; // nebo jiný model, který chceš použít
+
+  // načteme systémový prompt (raw text)
+  const systemPromptText = document.getElementById('system-prompt').textContent.trim();
+
+  // parsujeme few-shots z textu podle delimitru ===|USER|=== a ===|ASSISTANT|===
+  function parseFewShots(text) {
+    const regex = /===\|USER\|===\n([\s\S]*?)\n===\|ASSISTANT\|===\n([\s\S]*?)(?=\n===\|USER\|===|$)/g;
+    const arr = [];
+    let m;
+    while ((m = regex.exec(text)) !== null) {
+      arr.push({ role: "user", content: m[1].trim() });
+      arr.push({ role: "assistant", content: m[2].trim() });
+    }
+    return arr;
+  }
+
+  const fewShotsRaw = document.getElementById('few-shots').textContent;
+  const fewShots = parseFewShots(fewShotsRaw);
+
+  // build messages before each request
+  function buildMessages(userInput) {
+    const messages = [
+      { role: "system", content: systemPromptText },
+      ...fewShots,
+      { role: "user", content: userInput }
+    ];
+    return messages;
+  }
+
+  // jednoduchá heuristika: detekujeme, zda uživatel poslal kód (blok ``` nebo typické Java tokeny)
+  function userContainsCode(text){
+    if(!text) return false;
+    if(/```[\s\S]*?```/.test(text)) return true; // code block
+    if(/\b(public class|class\s+\w+|System\.out\.println|;\s*$)/m.test(text)) return true;
+    return false;
+  }
+
+  // bezpečné escapování HTML (kompatibilní)
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // renderujeme odpověď: zvládneme kódové bloky označené ```java nebo ```
+  function renderMessage(content) {
+    // nejdříve escapujeme HTML
+    let safe = escapeHtml(String(content));
+
+    // nahradíme code blocky ```lang\n...\n``` nebo ```\n...\n```
+    safe = safe.replace(/```(?:\w+)?\n([\s\S]*?)```/g, function(_, code) {
+      const codeSafe = escapeHtml(code);
+      return '<pre><code>' + codeSafe + '</code></pre>';
+    });
+
+    // zbytek nových řádků převedeme na <br>
+    safe = safe.replace(/\n/g, '<br>');
+    // zobrazíme > a < zpět tam, kde to dává smysl (pomáhá při porovnání)
+    safe = safe.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+    return safe;
+  }
+
+  // append message to chat
+  function appendToChat(role, text) {
+    const el = document.createElement('div');
+    el.className = 'message ' + (role === 'user' ? 'user' : 'bot');
+    const meta = role === 'user' ? '<div class="meta">Ty</div>' : '<div class="meta">Učitel</div>';
+    el.innerHTML = meta + renderMessage(text);
+    const chat = document.getElementById('chat');
+    chat.appendChild(el);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // append reasoning block (collapsed)
+  function appendReasoningBlock(reasoningText) {
+    // vytvoříme <details> prvek s <pre>
+    const el = document.createElement('div');
+    el.className = 'message bot';
+    const meta = '<div class="meta">Reasoning (vnitřní myšlení modelu)</div>';
+    const content = '<details><summary style="cursor:pointer;padding:6px 0;color:#0f5132">Ukázat myšlení modelu</summary><pre style="white-space:pre-wrap;margin-top:8px;">' + escapeHtml(String(reasoningText)) + '</pre></details>';
+    el.innerHTML = meta + content;
+    const chat = document.getElementById('chat');
+    chat.appendChild(el);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // robustní extrakce hlavního textu a reasoning z odpovědi OpenRouter
+  function extractResponseParts(data) {
+    // 1) hlavní odpověď - různé struktury
+    const main = data?.choices?.[0]?.message?.content
+              ?? data?.choices?.[0]?.message?.content?.text
+              ?? data?.choices?.[0]?.text
+              ?? data?.choices?.[0]?.output
+              ?? (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+
+    // 2) možná reasoning - různé možné umístění podle implementace
+    const reasoning = data?.reasoning
+                   ?? data?.choices?.[0]?.reasoning
+                   ?? data?.choices?.[0]?.message?.reasoning
+                   ?? (data?.choices?.[0]?.message && data.choices[0].message.reasoning ? data.choices[0].message.reasoning : null)
+                   ?? null;
+
+    return { main, reasoning };
+  }
+
+  // send to OpenRouter (s podporou reasoning)
+  async function sendToOpenRouter(messages, enableReasoning = false) {
+    // sestavíme payload, přidáme reasoning pouze pokud je enableReasoning = true
+    const payload = {
+      model: MODEL_NAME,
+      messages: messages,
+      temperature: 0.2,
+      max_tokens: 700
+    };
+
+    if (enableReasoning) {
+      // Reasoning parametry dle dokumentace OpenRouter (většina modelů to buď ignoruje nebo vrátí)
+      payload.reasoning = {
+        effort: "medium",   // low | medium | high
+        exclude: false,     // false = ukaž reasoning v odpovědi, true = použít interně (neukazovat)
+        max_tokens: 500     // kolik tokenů věnovat reasoning (pokud provider podporuje)
+      };
+    }
+
+    const url = "https://openrouter.ai/api/v1/chat/completions";
+
+    const maxAttempts = 4;
+    let attempt = 0;
+    let delay = 800;
+
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          const { main, reasoning } = extractResponseParts(data);
+          return { main, reasoning, raw: data };
+        }
+
+        // rate limit => zkusíme retry s backoff
+        if (resp.status === 429) {
+          const txt = await resp.text();
+          console.warn(`Attempt ${attempt} — rate limited (429):`, txt);
+          if (attempt >= maxAttempts) {
+            throw new Error("Model je momentálně rate-limited (429). Zkus to prosím později.");
+          }
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+          continue;
+        }
+
+        // invalid model (400) nebo jiné chyby
+        const txt = await resp.text();
+        throw new Error("HTTP " + resp.status + ": " + txt);
+
+      } catch (err) {
+        console.error("Request attempt error:", err);
+        if (attempt >= maxAttempts) throw err;
+        await new Promise(res => setTimeout(res, delay));
+        delay *= 2;
+      }
+    }
+
+    throw new Error("Neznámá chyba při volání modelu.");
+  }
+
+  // UI hooks
+  document.getElementById('send').addEventListener('click', async () => {
+    const inputEl = document.getElementById('input');
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    // pokud uživatel nezadal kód, zobrazíme výzvu (podle pravidel chování)
+    if (!userContainsCode(text)) {
+      appendToChat('bot', 'Ano, rád — pošli prosím svůj kód v blocích ```java``` nebo jako surový text (pokud chceš opravu).');
+      return;
+    }
+
+    appendToChat('user', text);
+    inputEl.value = '';
+
+    // zjistit zda posílat reasoning
+    const enableReasoning = document.getElementById('reasoning-checkbox').checked;
+
+    // stavová zpráva
+    appendToChat('bot', '<span class="small meta">...posílám dotaz modelu...</span>');
+    const statusMsg = document.querySelector('#chat .message.bot:last-child');
+
+    try {
+      const messages = buildMessages(text);
+      const { main, reasoning } = await sendToOpenRouter(messages, enableReasoning);
+      if (statusMsg) statusMsg.remove();
+      appendToChat('bot', main);
+
+      if (reasoning) {
+        // pokud model vrátil reasoning, zobrazíme ho odděleně (skrytě)
+        appendReasoningBlock(reasoning);
+      }
+    } catch (e) {
+      if (statusMsg) statusMsg.remove();
+      appendToChat('bot', "Chyba: " + escapeHtml(e.message));
+      console.error(e);
+    }
+  });
+
+  document.getElementById('input').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('send').click(); });
+  document.getElementById('clear').addEventListener('click', () => { document.getElementById('chat').innerHTML = ''; });
+
+  // –– inicializační zpráva
+  appendToChat('bot', 'Ahoj — jsem tvůj Java učitel. Napiš, s čím chceš pomoci (např. "Vysvětli konstruktory" nebo "Zkontroluj můj kód").');
+  </script> </body> </html> 
