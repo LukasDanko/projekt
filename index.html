@@ -28,14 +28,10 @@
 
     <div id="chat" aria-live="polite"></div>
 
-     <div class="controls">
+    <div class="controls">
       <input id="input" type="text" placeholder="Napiš dotaz o Javě (např. 'Co je konstruktor?')"/>
       <button id="send">Odeslat</button>
       <button id="clear">Vyčistit</button>
-      <label style="display:flex;align-items:center;gap:6px;margin-left:8px;font-size:13px;color:#374151;">
-        <input id="reasoning-checkbox" type="checkbox" />
-        <span>Požadovat reasoning (pokud model podporuje)</span>
-      </label>
     </div>
 
     <p class="note">Tip: Pro produkci použij server-side proxy, aby nebyl API klíč v klientu.</p>
@@ -51,7 +47,7 @@
   
        <script id="system-prompt" type="text/plain">
 
-Jsi OAVM AI — vysoce kvalitní, trpělivý, pedagogický a praktický učitel programování v jazyce Java. Komunikuj vždy česky.
+Jsi JavaTeachAI — vysoce kvalitní, trpělivý, pedagogický a praktický učitel programování v jazyce Java. Komunikuj vždy česky.
 
 **DŮLEŽITÉ PRAVIDLO PRO OPRAVU KÓDU:**
 - Při kontrole kódu uváděj pouze reálné chyby, které by způsobily chování kompilace nebo běhu. 
@@ -100,106 +96,47 @@ VI. Tipy na další zdroje
        ------------------------- -->
   <script id="few-shots" type="text/plain">
 ===|USER|===
-Opravíš mi kód?
-===|ASSISTANT|===
-Ano, rád — pošli prosím svůj kód v blocích ```java``` nebo jako surový text. Jakmile ho obdržím, prohlédnu ho a navrhnu minimální opravy. Pokud máš i výstup/chybu, přidej ji prosím.
-===|USER|===
-Tady je kód, nefunguje mi:
+Oprav mi tento kód:
 ```java
-public class HelloWorld {
-    public static void main(String args) {
-        system.out.println("Ahoj světe!")
-        
-        int x = "10";
-        if x > 5 {
-            System.out.println("X je větší než 5");
-        else
-            System.out.println("X je menší nebo rovno 5");
+public class Test {
+    public static void main(String[] args) {
+        String s = null;
+        System.out.println(s.length());
     }
 }
 
 ===|ASSISTANT|===
-I. Shrnutí (1–2 věty)
-Kód obsahuje více syntaktických chyb (nesprávná signatura main, velká písmena, chybějící středník, typová chyba) a jeden blok podmínky je špatně zapsán. Kvůli tomu kód nekompiluje.
+Shrnutí: Kód způsobí NullPointerException, protože voláš metodu na null referenci.
 
-II. Nalezené chyby (číslovaný seznam)
+Nalezené chyby:
 
-    main(String args) — musí být main(String[] args).
+    Proměnná s je null, ale voláš na ní length()
 
-    system.out.println — System s velkým S.
+Opravený kód:
+java
 
-    Chybí středník ; za System.out.println("Ahoj světe!").
-
-    int x = "10"; — přiřazuješ String do intu.
-
-    if x > 5 { — chybějící závorky: if (x > 5) {.
-
-    else — chybí { a blok else není správně uzavřen.
-
-III. Opravený kód (minimální změny)
-
-public class HelloWorld {
+public class Test {
     public static void main(String[] args) {
-        System.out.println("Ahoj světe!");
-
-        int x = 10;
-        if (x > 5) {
-            System.out.println("X je větší než 5");
+        String s = "Ahoj"; // nebo načti hodnotu od uživatele
+        if (s != null) {
+            System.out.println(s.length());
         } else {
-            System.out.println("X je menší nebo rovno 5");
+            System.out.println("Řetězec je null");
         }
     }
 }
 
-IV. Vysvětlení změn (krátce, per-change)
+Vysvětlení:
 
-    Změna signatury main umožní JVM předat pole argumentů.
+    Přidána kontrola s != null před voláním metody.
 
-    System má velké S — to je třída v JDK.
+    Alternativně lze inicializovat s hodnotou.
 
-    Přidán chybějící ;.
+Testování: Spusť program a ověř, že již nevyhazuje výjimku.
 
-    Řetězec "10" přepsán na číslo 10 (pokud jsi chtěl parsovat ze stringu, použij Integer.parseInt).
 
-    Podmínka upravena na if (x > 5) a else uzavřeno do bloku.
-
-V. Test (jak ověřit)
-
-    Ulož jako HelloWorld.java.
-
-    Spusť javac HelloWorld.java → nemáš-li chyby, spouštíš java HelloWorld.
-
-    Očekávaný výstup:
-
-Ahoj světe!
-X je větší než 5
-
-VI. Tipy / rozšíření
-
-    Pokud x přijde jako textové vstupy, použij int x = Integer.parseInt(s); s try/catch pro NumberFormatException.
-
-    Pokud chceš, mohu dodat variantu s načítáním ze stdin.
-
-===|USER|===
-Co je to třída v Javě? Vysvětli stručně pro začátečníka a ukaž krátký příklad.
-===|ASSISTANT|===
-I. Krátké shrnutí
-Třída je šablona (blueprint) pro vytváření objektů — popisuje data (pola) a chování (metody).
-
-II. Předpoklady
-Základní představa o proměnných a funkcích.
-
-III. Cíle lekce
-
-    Rozumět, co je třída a objekt.
-
-    Vytvořit jednoduchou třídu a instanci.
-
-IV. Vysvětlení krok-po-kroku (analogie)
-Představ si třídu jako plán domu — popisuje místnosti (pola) a co dům umí (metody). Objekt je konkrétní dům postavený z plánu.
-
-V. Příklad (spustitelný)
-
+===|USER|=== Jsem začátečník. Co je to třída v Javě? Vysvětli jednoduše a ukaž krátký příklad. ===|ASSISTANT|=== Krátké shrnutí: Třída je šablona (blueprint) pro objekty — definuje data a chování. Vysvětlení krok-po-kroku: Představ si třídu jako plán domu: popisuje, jaké má dům místnosti (pola) a co umí (metody). Objekt je konkrétní dům postavený podle plánu. Příklad:
+java
 public class Auto {
   String znacka;
   int rocnik;
@@ -215,32 +152,53 @@ public class Auto {
 
   public static void main(String[] args) {
     Auto a = new Auto("Škoda", 2010);
-    a.info(); // vypíše: Škoda 2010
+    a.info();
   }
 }
 
-VI. Cvičení (2 úlohy)
+Očekávaný výstup:
 
-    Vytvoř třídu Kniha s poli nazev, autor a metodou autorInfo().
+Škoda 2010
 
-    Přidej konstruktor a main pro vyzkoušení.
+Cvičení: Vytvoř třídu Kniha s poli nazev, autor a metodou autorInfo().
+===|USER|===
+Můj program hází NullPointerException, prosím zkontroluj:
 
-VII. Nápověda
+public class Test {
+  public static void main(String[] args) {
+    String s = null;
+    System.out.println(s.length());
+  }
+}
 
-    Použij this v konstruktoru pro přiřazení polí.
+===|ASSISTANT|===
+Shrnutí: Příčina je volání metody na null referenci.
+
+Nalezené problémy:
+
+    s je null a voláš s.length().
+
+Opravený kód:
+
+public class Test {
+  public static void main(String[] args) {
+    String s = "ahoj"; // nebo načíst hodnotu od uživatele
+    if (s != null) {
+      System.out.println(s.length());
+    } else {
+      System.out.println("Řetězec je null");
+    }
+  }
+}
+
+Vysvětlení: Kontrolou s != null zabráníš vyvolání NullPointerException. Alternativně inicializuj proměnnou hodnotou.
 
 ===|USER|===
-Můžeš připravit krátké 30min zadání pro studenty: práce s ArrayList — seřadit studenty podle známky, a ukaž testovací data a kritéria hodnocení.
+Napiš krátké zadání pro 30min domácí úlohu: práce s ArrayList — seřadit studenty podle známky.
 ===|ASSISTANT|===
-Cíl: Procvičit práci s ArrayList, tříděním, Comparator a základní I/O.
+Cíl: Procvičit práci s ArrayList, tříděním a Comparator.
 
-Zadání:
-
-    Vytvoř třídu Student { String jmeno; int znamka; }.
-
-    Načti (nebo pevně definuj) seznam studentů a seřaď je od nejlepší (nejnižší známka) po nejhorší.
-
-    Vypiš formát Jméno - známka po jednom na řádek.
+Zadání: Vytvoř program, který načte seznam studentů (jméno, známka) a vypíše je seřazené od nejlepšího po nejhorší.
 
 Testovací data:
 
@@ -252,53 +210,125 @@ Kritéria hodnocení:
 
     Správné použití ArrayList a Comparator (50 %)
 
-    Správný výstup a formát (30 %)
+    Fungující vstup/ výstup a formát (30 %)
 
-    Čitelnost kódu, komentáře (20 %)
+    Čitelnost a komentáře (20 %)
 
-Krátká nápověda:
-
-Collections.sort(list, (a,b) -> Integer.compare(a.znamka, b.znamka));
-
+Nápověda: Použij Collections.sort(list, (a,b) -> Integer.compare(a.grade, b.grade));
+=
 ===|USER|===
-Chci opravit kód, ale napsal jsem dotaz v Pythonu. Můžeš pomoci?
+Mám tabulku USERS, napiš DDL (SQLite) pro jednoduchou tabulku uživatelů s indexem.
 ===|ASSISTANT|===
-Omlouvám se — specializuji se na Javu. Kód v jiném programovacím jazyce nepřijímám. Doporučuji využít:
+DDL:
 
-    oficiální Python dokumentaci: https://docs.python.org/3/
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_users_username ON users(username);
 
-    ,
+Vysvětlení: UNIQUE zabrání duplicitním uživatelským jménům; index zrychlí vyhledávání podle username.
+===|USER|===
+Oprav tento kód — výjimka IndexOutOfBounds:
 
-    nebo komunitní fóra (Stack Overflow).
-    Pokud chceš, mohu poradit konceptuálně (algoritmus) v češtině, aby to bylo snazší přepsat do Pythonu, nebo ti navrhnout ekvivalentní řešení v Javě.
-    ===|USER|===
-    Prosím ukaž, že když zapnu reasoning, model může vrátit i krátké "myšlení" (reasoning) oddělené od hlavního textu.
-    ===|ASSISTANT|===
-    Hlavní odpověď (co uživatel uvidí):
-
-Shrnutí: Kód způsobuje NullPointerException kvůli volání metody na null referenci. Opravil jsem to přidáním kontroly null.
-
-===REASONING===
-(krátký, interní přehled myšlení, který může být vrácen když je zapnuto reasoning):
-
-1) Zkontroloval jsem signaturu main -> validita JVM. 
-2) Hledal jsem volání metod na reference, které mohou být null -> našel jsem s.length(). 
-3) Navrhl jsem minimalní opravu: kontrola null nebo inicializace. 
-4) Ověřil jsem, že oprava zachovává původní funkčnost bez přidání nových feature.
+List<Integer> l = new ArrayList<>();
+l.add(1);
+System.out.println(l.get(1));
 
 ===|ASSISTANT|===
-Skončil jsem.
+Shrnutí: Pokoušíš se číst prvek na indexu 1, ale seznam má jen index 0.
+
+Problém: get(1) je mimo rozsah.
+
+Oprava:
+
+List<Integer> l = new ArrayList<>();
+l.add(1);
+if (l.size() > 1) {
+  System.out.println(l.get(1));
+} else {
+  System.out.println(l.get(0));
+}
+
+Vysvětlení: Ověř velikost před čtením; alternativně při inicializaci naplň dostatečně daty nebo ošetři výjimku.
+===|USER|===
+Vytvoř testovatelné zadání na projekt: 'Správa knih (CRUD)' s návrhem testů (JUnit) a minimální implementací.
+===|ASSISTANT|===
+Cíl: Postavit jednoduchou aplikaci CRUD pro knihy (in-memory), psanou v Javě.
+
+Specifikace: Entita Book{id, title, author}; operace: create, read (by id), update, delete, listAll.
+
+Testovací případy (JUnit):
+
+    Vytvoření knihy a ověření, že je v seznamu.
+
+    Načtení knihy podle id vrátí správné údaje.
+
+    Aktualizace změní pole title.
+
+    Smazání odstraní z kolekce.
+
+Ukázkový skeleton (minimální implementace):
+
+public class Book { int id; String title; String author; /*get/set*/ }
+public class BookStore {
+  private Map<Integer, Book> map = new HashMap<>();
+  private AtomicInteger next = new AtomicInteger(1);
+  public Book create(String t,String a){ int id=next.getAndIncrement(); Book b=new Book(id,t,a); map.put(id,b); return b; }
+  /* read/update/delete/list */
+}
+
+Hodnocení: Funkčnost 60%, testy 25%, dokumentace 15%.
+===|USER|===
+Napiš krátkou lekci: 'Proměnné a datové typy' pro začátečníky, včetně 2 cvičení.
+===|ASSISTANT|===
+I. Shrnutí: Proměnné v Javě drží data; každý typ má velikost a chování.
+
+II. Předpoklady: Základní znalost, co je program.
+
+III. Cíle: Rozumět primitivním typům (int, double, boolean, char) a referenčním typům (např. String).
+
+IV. Vysvětlení: ukaž příklady deklarace a inicializace.
+
+Příklad:
+
+int x = 5;
+double d = 3.14;
+boolean ok = true;
+String s = "Ahoj";
+
+V. Cvičení:
+
+    Napiš program, který spočítá obvod obdélníku (vstup šířka, výška).
+
+    Napiš program, který zkontroluje, zda je číslo sudé nebo liché.
+
+Nápověda: Použij % 2 pro kontrolu sudosti.
+===|USER|===
+Jak vytvoříš jednoduchý týdenní plán kurzu Javy pro začátečníky (4 týdny)?
+===|ASSISTANT|===
+Týden 1: Základy (proměnné, datové typy, operátory, základní I/O). Domácí: 3 malé programy.
+
+Týden 2: Řízení toku (if, switch, cykly), metody. Domácí: Naprogramuj kalkulačku.
+
+Týden 3: Třídy a objekty, konstruktor, pole, ArrayList. Domácí: vytvoř třídu Student a list studentů.
+
+Týden 4: Souhrn + práce s jednoduchou datovou strukturou (CRUD) a zpracování chyb. Projekt: mini-aplikace správy knih.
+
+Ke každé lekci přidej 1–2 cvičení + malý quiz (5 otázek).
 </script>
-<!-- ------------- CLIENT JS ------------- -->  <script>
-  // === NASTAVENÍ ===
-  const API_KEY = "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"; // tvůj klíč
-  const MODEL_NAME = "minimax/minimax-m2:free"; // nebo jiný model, který chceš použít
+<!-- ------------- CLIENT JS ------------- --> <script>  // === NASTAVENÍ ===
+  const API_KEY = "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"; // <- nahraď svým klíčem pro lokální test
+  const MODEL_NAME = "minimax/minimax-m2:free";
 
   // načteme systémový prompt (raw text)
   const systemPromptText = document.getElementById('system-prompt').textContent.trim();
 
   // parsujeme few-shots z textu podle delimitru ===|USER|=== a ===|ASSISTANT|===
   function parseFewShots(text) {
+    // Formát v textu: ===|USER|===\n<user text>\n===|ASSISTANT|===\n<assistant text>\n...
     const regex = /===\|USER\|===\n([\s\S]*?)\n===\|ASSISTANT\|===\n([\s\S]*?)(?=\n===\|USER\|===|$)/g;
     const arr = [];
     let m;
@@ -322,14 +352,6 @@ Skončil jsem.
     return messages;
   }
 
-  // jednoduchá heuristika: detekujeme, zda uživatel poslal kód (blok ``` nebo typické Java tokeny)
-  function userContainsCode(text){
-    if(!text) return false;
-    if(/```[\s\S]*?```/.test(text)) return true; // code block
-    if(/\b(public class|class\s+\w+|System\.out\.println|;\s*$)/m.test(text)) return true;
-    return false;
-  }
-
   // bezpečné escapování HTML (kompatibilní)
   function escapeHtml(s) {
     return String(s)
@@ -343,174 +365,134 @@ Skončil jsem.
     // nejdříve escapujeme HTML
     let safe = escapeHtml(String(content));
 
-    // nahradíme code blocky ```lang\n...\n``` nebo ```\n...\n```
-    safe = safe.replace(/```(?:\w+)?\n([\s\S]*?)```/g, function(_, code) {
+    // nahradíme code blocky ```java\n...\n``` nebo ```\n...\n```
+    safe = safe.replace(/```(?:java)?\n([\s\S]*?)```/g, function(_, code) {
       const codeSafe = escapeHtml(code);
       return '<pre><code>' + codeSafe + '</code></pre>';
     });
 
     // zbytek nových řádků převedeme na <br>
     safe = safe.replace(/\n/g, '<br>');
-    // zobrazíme > a < zpět tam, kde to dává smysl (pomáhá při porovnání)
-    safe = safe.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
     return safe;
   }
 
-  // append message to chat
-  function appendToChat(role, text) {
-    const el = document.createElement('div');
-    el.className = 'message ' + (role === 'user' ? 'user' : 'bot');
-    const meta = role === 'user' ? '<div class="meta">Ty</div>' : '<div class="meta">Učitel</div>';
-    el.innerHTML = meta + renderMessage(text);
-    const chat = document.getElementById('chat');
-    chat.appendChild(el);
-    chat.scrollTop = chat.scrollHeight;
-  }
+// append message to chat
+function appendToChat(role, text) {
+  const el = document.createElement('div');
+  el.className = 'message ' + (role === 'user' ? 'user' : 'bot');
+  const meta = role === 'user' ? '<div class="meta">Ty</div>' : '<div class="meta">Učitel</div>';
+  el.innerHTML = meta + renderMessage(text);
+  const chat = document.getElementById('chat');
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
 
-  // append reasoning block (collapsed)
-  function appendReasoningBlock(reasoningText) {
-    // vytvoříme <details> prvek s <pre>
-    const el = document.createElement('div');
-    el.className = 'message bot';
-    const meta = '<div class="meta">Reasoning (vnitřní myšlení modelu)</div>';
-    const content = '<details><summary style="cursor:pointer;padding:6px 0;color:#0f5132">Ukázat myšlení modelu</summary><pre style="white-space:pre-wrap;margin-top:8px;">' + escapeHtml(String(reasoningText)) + '</pre></details>';
-    el.innerHTML = meta + content;
-    const chat = document.getElementById('chat');
-    chat.appendChild(el);
-    chat.scrollTop = chat.scrollHeight;
-  }
+// send to OpenRouter
+async function sendToOpenRouter(messages) {
+  const payload = {
+    model: MODEL_NAME,
+    messages: messages,
+    temperature: 0.2,
+    max_tokens: 600
+  };
 
-  // robustní extrakce hlavního textu a reasoning z odpovědi OpenRouter
-  function extractResponseParts(data) {
-    // 1) hlavní odpověď - různé struktury
-    const main = data?.choices?.[0]?.message?.content
-              ?? data?.choices?.[0]?.message?.content?.text
-              ?? data?.choices?.[0]?.text
-              ?? data?.choices?.[0]?.output
-              ?? (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+  const url = "https://openrouter.ai/api/v1/chat/completions";
 
-    // 2) možná reasoning - různé možné umístění podle implementace
-    const reasoning = data?.reasoning
-                   ?? data?.choices?.[0]?.reasoning
-                   ?? data?.choices?.[0]?.message?.reasoning
-                   ?? (data?.choices?.[0]?.message && data.choices[0].message.reasoning ? data.choices[0].message.reasoning : null)
-                   ?? null;
+  const maxAttempts = 5;
+  let attempt = 0;
+  let delay = 1000; // 1s, pak 2s, 4s, 8s...
 
-    return { main, reasoning };
-  }
+  while (attempt < maxAttempts) {
+    attempt++;
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
 
-  // send to OpenRouter (s podporou reasoning)
-  async function sendToOpenRouter(messages, enableReasoning = false) {
-    // sestavíme payload, přidáme reasoning pouze pokud je enableReasoning = true
-    const payload = {
-      model: MODEL_NAME,
-      messages: messages,
-      temperature: 0.2,
-      max_tokens: 700
-    };
+      if (resp.ok) {
+        const data = await resp.json();
+        const reply = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "Žádná odpověď od modelu.";
+        return reply;
+      }
 
-    if (enableReasoning) {
-      // Reasoning parametry dle dokumentace OpenRouter (většina modelů to buď ignoruje nebo vrátí)
-      payload.reasoning = {
-        effort: "medium",   // low | medium | high
-        exclude: false,     // false = ukaž reasoning v odpovědi, true = použít interně (neukazovat)
-        max_tokens: 500     // kolik tokenů věnovat reasoning (pokud provider podporuje)
-      };
-    }
-
-    const url = "https://openrouter.ai/api/v1/chat/completions";
-
-    const maxAttempts = 4;
-    let attempt = 0;
-    let delay = 800;
-
-    while (attempt < maxAttempts) {
-      attempt++;
-      try {
-        const resp = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + API_KEY
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (resp.ok) {
-          const data = await resp.json();
-          const { main, reasoning } = extractResponseParts(data);
-          return { main, reasoning, raw: data };
-        }
-
-        // rate limit => zkusíme retry s backoff
-        if (resp.status === 429) {
-          const txt = await resp.text();
-          console.warn(`Attempt ${attempt} — rate limited (429):`, txt);
-          if (attempt >= maxAttempts) {
-            throw new Error("Model je momentálně rate-limited (429). Zkus to prosím později.");
-          }
-          await new Promise(res => setTimeout(res, delay));
-          delay *= 2;
-          continue;
-        }
-
-        // invalid model (400) nebo jiné chyby
+      // Rate limit
+      if (resp.status === 429) {
         const txt = await resp.text();
-        throw new Error("HTTP " + resp.status + ": " + txt);
+        console.warn(`Attempt ${attempt} — rate limited (429):`, txt);
 
-      } catch (err) {
-        console.error("Request attempt error:", err);
-        if (attempt >= maxAttempts) throw err;
+        if (attempt >= maxAttempts) {
+          // poslední pokus selhal — vyhodíme informativní chybu
+          throw new Error("Model je momentálně rate-limited (429). Zkus přidat vlastní integrační klíč v OpenRouter (Settings → Integrations) nebo zkusit později. Detaily: " + txt);
+        }
+
+        // počkej exponenciálně a opakuj
         await new Promise(res => setTimeout(res, delay));
         delay *= 2;
+        continue;
       }
-    }
 
-    throw new Error("Neznámá chyba při volání modelu.");
+      // jiné chyby (4xx/5xx)
+      const txt = await resp.text();
+      throw new Error("HTTP " + resp.status + ": " + txt);
+
+    } catch (err) {
+      // síťová chyba nebo throw výše
+      console.error("Request attempt error:", err);
+      if (attempt >= maxAttempts) throw err;
+      // malý wait a opakuj (pro transientní network errors)
+      await new Promise(res => setTimeout(res, delay));
+      delay *= 2;
+    }
   }
 
-  // UI hooks
-  document.getElementById('send').addEventListener('click', async () => {
-    const inputEl = document.getElementById('input');
-    const text = inputEl.value.trim();
-    if (!text) return;
+  throw new Error("Neznámá chyba při volání modelu.");
+}
 
-    // pokud uživatel nezadal kód, zobrazíme výzvu (podle pravidel chování)
-    if (!userContainsCode(text)) {
-      appendToChat('bot', 'Ano, rád — pošli prosím svůj kód v blocích ```java``` nebo jako surový text (pokud chceš opravu).');
-      return;
-    }
 
-    appendToChat('user', text);
-    inputEl.value = '';
+// UI hooks
+document.getElementById('send').addEventListener('click', async () => {
+  const inputEl = document.getElementById('input');
+  const text = inputEl.value.trim();
+  if (!text) return;
 
-    // zjistit zda posílat reasoning
-    const enableReasoning = document.getElementById('reasoning-checkbox').checked;
+  appendToChat('user', text);
+  inputEl.value = '';
 
-    // stavová zpráva
+  try {
+    const messages = buildMessages(text);
+
+    // přidáme dočasnou zprávu a uložíme element
     appendToChat('bot', '<span class="small meta">...posílám dotaz modelu...</span>');
     const statusMsg = document.querySelector('#chat .message.bot:last-child');
 
-    try {
-      const messages = buildMessages(text);
-      const { main, reasoning } = await sendToOpenRouter(messages, enableReasoning);
-      if (statusMsg) statusMsg.remove();
-      appendToChat('bot', main);
+    const reply = await sendToOpenRouter(messages);
 
-      if (reasoning) {
-        // pokud model vrátil reasoning, zobrazíme ho odděleně (skrytě)
-        appendReasoningBlock(reasoning);
-      }
-    } catch (e) {
-      if (statusMsg) statusMsg.remove();
-      appendToChat('bot', "Chyba: " + escapeHtml(e.message));
-      console.error(e);
-    }
-  });
+    // odstraníme dočasnou zprávu
+    if (statusMsg) statusMsg.remove();
 
-  document.getElementById('input').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('send').click(); });
-  document.getElementById('clear').addEventListener('click', () => { document.getElementById('chat').innerHTML = ''; });
+    // zobrazíme odpověď
+    appendToChat('bot', reply);
 
-  // –– inicializační zpráva
-  appendToChat('bot', 'Ahoj — jsem tvůj Java učitel. Napiš, s čím chceš pomoci (např. "Vysvětli konstruktory" nebo "Zkontroluj můj kód").');
-  </script> </body> </html> 
+  } catch (e) {
+    // odstraníme dočasnou zprávu, pokud chyba nastane
+    const lastBotMsg = document.querySelector('#chat .message.bot:last-child');
+    if (lastBotMsg) lastBotMsg.remove();
+
+    appendToChat('bot', "Chyba: " + escapeHtml(e.message));
+    console.error(e);
+  }
+});
+
+
+document.getElementById('input').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('send').click(); });
+document.getElementById('clear').addEventListener('click', () => { document.getElementById('chat').innerHTML = ''; });
+
+// –– inicializační zpráva
+appendToChat('bot', 'Ahoj — jsem tvůj Java učitel. Napiš, s čím chceš pomoci (např. "Vysvětli konstruktory" nebo "Zkontroluj můj kód").');
+
+</script> </body> </html> 
