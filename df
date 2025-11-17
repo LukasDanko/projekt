@@ -321,7 +321,7 @@ Týden 4: Souhrn + práce s jednoduchou datovou strukturou (CRUD) a zpracování
 Ke každé lekci přidej 1–2 cvičení + malý quiz (5 otázek).
 </script>
 <!-- ------------- CLIENT JS ------------- --> <script>  // === NASTAVENÍ ===
-  const API_KEY = "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"; // <- nahraď svým klíčem pro lokální test
+  const API_KEY = "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"; // <- nahraď svým klíčem pro lokální test
   const MODEL_NAME = "kwaipilot/kat-coder-pro:free";
 
   // načteme systémový prompt (raw text)
@@ -394,7 +394,7 @@ async function sendToOpenRouter(messages) {
     model: MODEL_NAME,
     messages: messages,
     temperature: 0.2,
-    max_tokens: 700
+    max_tokens: 600
   };
 
   const url = "https://openrouter.ai/api/v1/chat/completions";
